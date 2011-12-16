@@ -17,4 +17,5 @@
     <plugin name="FileTransfer" value="com.phonegap.FileTransfer"/>
     <plugin name="Capture" value="com.phonegap.Capture"/>
     <plugin name="Battery" value="com.phonegap.BatteryListener"/>
+    <plugin name="Unplugg" value="com.simonmacdonald.unplugg.ServiceManager"/>
 </plugins>

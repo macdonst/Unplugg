@@ -1,637 +1,99 @@
-<!DOCTYPE HTML>
-<html>
-  <head>
-    <meta name="viewport" content="width=320; user-scalable=no" />
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <title>PhoneGap</title>
-	  <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title" charset="utf-8">
-      <script type="text/javascript" charset="utf-8" src="phonegap-1.2.0.js"></script>      
-      <script type="text/javascript" charset="utf-8" src="statusbarnotification.js"></script>      
-	  <script type="text/javascript" charset="utf-8">
-	  
-    var deviceInfo = function(){      
-	  console.log("In deviceInfo!");
-      document.getElementById("platform").innerHTML = device.platform;
-      document.getElementById("version").innerHTML = device.phonegap;
-      document.getElementById("uuid").innerHTML = device.uuid;
-      console.log("Height:" + window.innerHeight);
-	  console.log("Width:" + window.innerWidth);
-      document.addEventListener("batterystatus", onBattery, false);
-    }
+<!DOCTYPE html> 
+<html> 
+    <head> 
+    <title>Unplugg</title> 
     
-    function onBattery(evt) {
-        console.log("Batter Level = " + evt.level + " isPlugged = " + evt.isPlugged);
-        document.getElementById("battery").innerHTML = document.getElementById("battery").innerHTML + " " + evt.level;
-    }
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+
+    <link rel="stylesheet" href="jqm/jquery.mobile-1.0.css" />
+    <script type="text/javascript" src="jqm/jquery-1.7.1.js"></script>
+    <script type="text/javascript" src="jqm/jquery.mobile-1.0.js"></script>
+    <script type="text/javascript" src="phonegap-1.3.0rc2.js"></script>
+    <script type="text/javascript" src="unplugg.js"></script>
+    <script type="text/javascript">
+        function init() {
+            document.addEventListener("deviceready", onDevReady, false);
+        }
+        
+        function onDevReady() {
+            console.log("We are good to go.");
+            
+            window.addEventListener("batterystatus", onBatteryStatus, false);
+        }
+        
+        function onBatteryStatus(info) {
+            console.log("Level: " + info.level + " isPlugged: " + info.isPlugged); 
+        }
+        
+        function toggleDiv(id) {
+            $("#"+id).show().siblings().hide();
+        }
+        
+        function addSchedule() {
+            console.log("Got here");
+            window.plugins.unplugg.addSchedule({});
+        }
+    </script>
+</head> 
+<body onload="init()"> 
+
+<div data-role="page" id="main">
+
+    <div data-role="header">
+        <h1>Unplugg</h1>
+        <div data-role="navbar">
+            <ul>
+                <li><a href="#" onclick="toggleDiv('status')" class="ui-btn-active">Status</a></li>
+                <li><a href="#" onclick="toggleDiv('schedule')" >Schedules</a></li>
+            </ul>
+        </div><!-- /navbar -->
+    </div><!-- /header -->
+
+    <div>
+        <div data-role="content" id="status">
+            Add battery info here<br/>
+            <label for="unplugs">Unplugg for:</label>
+            <div data-role="controlgroup" id="unplugs">                
+                <a href="#" onclick="addSchedule()" data-role="button">15 minutes</a>
+                <a href="index.html" data-role="button">30 minutes</a>
+                <a href="index.html" data-role="button">1 hour</a>
+            </div>   
+        </div><!-- /content -->
     
-    var getLocation = function() {
-      var suc = function(p){
-		    alert(p.coords.latitude + " " + p.coords.longitude);
-      };
-      var fail = function(){};
-      navigator.geolocation.getCurrentPosition(suc,fail);
-    }
-    
-    var beep = function(){
-	    navigator.notification.beep(2);
-    }
-	
-  	var vibrate = function(){
-  	  navigator.notification.vibrate(0);
-  	}
-	
-  	var getContact = function(){
-  	  var suc = function(c){ alert("Contact 4: " + c.contacts[3].name); };
-  		var fail = function(){};
-  		navigator.ContactManager.get(suc, fail);
-  	}
-  	
-  	var watchAccel = function() {
-  		var suc = function(a){
-  			document.getElementById('x').innerHTML = roundNumber(a.x);
-  			document.getElementById('y').innerHTML = roundNumber(a.y);
-  			document.getElementById('z').innerHTML = roundNumber(a.z);
-  		};
-  		var fail = function(){};
-  		var opt = {};
-  		opt.frequency = 100;
-  		timer = navigator.accelerometer.watchAcceleration(suc,fail,opt);
-  	}
-    	
-    function roundNumber(num) {
-      var dec = 3;
-      var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
-      return result;
-    }
-    
-	var preventBehavior = function(e) { 
-      e.preventDefault(); 
-    };
-
-    function show_pic()
-    {
-      var viewport = document.getElementById('viewport');
-      viewport.style.display = "";
-      navigator.camera.getPicture(dump_pic, fail, { quality: 10, 
-        destinationType: Camera.DestinationType.FILE_URI, sourceType : Camera.PictureSourceType.CAMERA, 
-        encodingType: Camera.EncodingType.JPEG, targetWidth: 200, targetHeight: 100 }); 
-    }
-
-    function dump_pic(data)
-    {
-      var viewport = document.getElementById('viewport');
-	  console.log("Doing using file path");
-      console.log(data);
-      viewport.style.display = "";
-      viewport.style.position = "absolute";
-      viewport.style.top = "10px";
-      viewport.style.left = "10px";
-      //document.getElementById("test_img").src = "data:image/jpeg;base64," + data;
-      document.getElementById("test_img").src = data;
-    }
-
-    function close()
-    {
-      var viewport = document.getElementById('viewport');
-      viewport.style.position = "relative";
-      viewport.style.display = "none";
-    }
-
-    function fail(fail)
-    {
-      alert(fail);
-    }
-
-  	function save_contact() 
-  	{
-  	  	console.log("in save_contacts");
-  	  	var contact = new Contact();
-  	  	//contact.id="1";
-  	  	contact.displayName="Homer Simpson";
-  	  	contact.nickname="Homey";
-  	  	contact.phoneNumbers = [];
-  	  	contact.phoneNumbers.push(new ContactField("home","613-592-0000")); 
-  	  	contact.phoneNumbers.push(new ContactField("work","613-592-1111")); 
-  	  	contact.emails = [];
-  	  	contact.emails.push(new ContactField("home","me@here.com")); 
-  	  	contact.emails.push(new ContactField("work","me@there.com")); 
-		//contact.photos = [];
-		//contact.photos.push(new ContactField("pic","/sdcard/DCIM/Camera/Homer.jpg"));
-  	  	//contact.note="This is my note";
-  	  	contact.save(saveSuccess,fail);
-  	}
-
-  	function saveSuccess() {
-  	  	alert("contact saved");
-  	}
-  	
-	function create_contact()
-	{
-		var obj = navigator.service.contacts.create({"displayName": "ack", "gender": "male", "note": "my note", "name": {"formatted": "ackery"}, "emails": [{"value": "here@there.com"}, {"value": "there@here.com"}]});
-		
-		console.log("Called contacts.create");
-		for (i in obj) {
-			console.log(obj[i]);
-		}
-		console.log(obj.name.formatted);
-		for (var i=0; i<obj.emails.length; i++) {
-			console.log(obj.emails[i].value);
-		}
-	}
-
-	function remove_contact()
-	{
-		var obj = new Contact(10);
-		obj.remove(removeSuccess,removeError);
-	}
-
-	function removeSuccess(message) {
-		alert(message);
-	}
-
-	function removeError(contactError) {
-		alert(contactError.code);
-	}
-
-	function clone_contact()
-	{
-		var obj = new Contact();
-		obj.id=1;
-		obj.displayName="Simon MacDonald";
-		obj.nickname="Si";
-		obj.gender="male";
-		obj.note="Lets see how cloning works";
-		obj.name = new ContactName("Mr. Simon MacDonald");
-		
-		var clonedObj = obj.clone();
-		for (i in clonedObj) {
-			console.log(clonedObj[i]);
-		}
-		console.log("clonedObj ID = " + clonedObj.id);
-		console.log(clonedObj.name.formatted);
-
-		var clone2 = clonedObj.clone();
-		console.log("clone2 ID = " + clone2.id);
-		console.log(clone2.name.formatted);
-	}
-
-	function get_contacts()
-	{
-		var obj = new ContactFindOptions();
-		obj.filter="Aazinger";
-		obj.multiple=true;
-		obj.limit=1000000;
-		navigator.service.contacts.find(["displayName", "name", "phoneNumbers", "emails", "photos"], count_contacts, fail, obj);
-		//navigator.service.contacts.find(["displayName", "name", "phoneNumbers", "emails", "urls", "note"], count_contacts, fail, obj);
-		//navigator.service.contacts.find(["displayName"], count_contacts, fail, obj);
-	}
-
-	function count_contacts(contacts)
-	{
-//		for (i=0;i<contacts.length;i++) {
-//			console.log(contacts[i]);
-//			console.log(contacts[i].id);
-//			console.log(contacts[i].displayName);
-//			console.log("Phone # array = " + contacts[i].phoneNumbers.length);
-//			for (j=0;j<contacts[i].phoneNumbers.length;j++) {
-//				if (contacts[i].phoneNumbers != null && contacts[i].phoneNumbers != 'undefined') {
-//					console.log("Phone row number = " + contacts[i].phoneNumbers[j].id);
-//					console.log(contacts[i].phoneNumbers[j].value);
-//				}
-//			}
-//			else {
-//				console.log("no phones for " + contacts[i].displayName);
-//			}
-//			if(contacts[i].addresses[0]) {
-//				console.log(contacts[i].addresses[0].formatted);
-//			}
-//		}	
-//		console.log(JSON.stringify(contacts));
-		alert(contacts.length);
-		for (i=0; i<contacts.length; i++) {
-			console.log(contacts[i].photos[0].value);
-		}
-		console.log(contacts[0].photos.length);
-		dump_pic(contacts[0].photos[0].value);
-		
-       console.log("my uri = " + contacts[0].photos[0].value);
-       var win = function(evt) {
-               console.log("win: "+evt.target.result.length);
-       };
-       var fail = function(evt) {
-               alert("err: "+evt.target.error);
-       };
-       var reader = new FileReader();
-       reader.onload = win;
-       reader.onerror= fail;
-       reader.readAsDataURL(contacts[0].photos[0].value);
-		
-	}
-  	
-	function getCpuUsage() {
-		if (navigator.system.has("CPU")) {
-			navigator.system.get("CPU", cpuUsage, fail, null);
-		}
-	}
-
-	function cpuUsage(cpu) {
-		alert("Usage = " + cpu.usage);
-	}
-  	
-	function getPowerUsage() {
-		if (navigator.system.has("Power")) {
-            //navigator.system.get("Power", powerLevel, fail, null);
-            navigator.system.monitor("Power", powerLevel, fail, {"lowThreshold":45,
-				"highThreshold": 47
-			});
-		}
-	}
-
-	function powerLevel(power) {
-		alert("Power Level = " + power.level);
-	}
-
-	function getLight() {
-		if (navigator.system.has("ambientlight")) {
-			console.log("going to cal get light value");
-			navigator.system.get("ambientlight", lightLevel, fail, null);
-		}
-		else {
-			console.log("No light sensor");
-		}
-	}
-
-	function lightLevel(light) {
-		alert("Light Level = " + light.value);
-	}
-
-	function getPressure() {
-		if (navigator.system.has("ambientatmosphericpressure")) {
-			navigator.system.get("ambientatmosphericpressure", pressureLevel, fail, null);
-		}
-		else {
-			console.log("No pressure sensor");
-		}
-	}
-
-	function pressureLevel(pressure) {
-		alert("Pressure Level = " + pressure.value);
-	}
-	
-	function getTemp() {
-		if (navigator.system.has("ambienttemperature")) {
-			console.log("We have a temp sensor");
-			navigator.system.get("ambienttemperature", tempLevel, fail, null);
-		}
-		else {
-			console.log("No temperature sensor");
-		}
-	}
-
-	function tempLevel(temp) {
-		alert("Temperature Level = " + temp.value);
-	}
-	
-	function getStorage() {
-		if (navigator.system.has("Storage")) {
-			navigator.system.get("Storage", printStorage, fail, null);
-		}
-		else {
-			console.log("No temperature sensor");
-		}
-	}
-
-	function printStorage(units) {
-		for (var i=0;i<units.length;i++) {
-			alert("Capacity = " + units[i].capacity + " available = " + units[i].availableCapacity);
-		}
-	}
-	
-	function getCodecs() {
-		if (navigator.system.has("AVCodecs")) {
-			navigator.system.get("AVCodecs", printCodecs, fail, null);
-		}
-		else {
-			console.log("No AVCodecs");
-		}
-	}
-
-	function printCodecs(codecs) {
-		console.log("Audio");
-		for (var i=0;i<codecs.audioCodecs.length;i++) {
-			console.log("Codec = " + codecs.audioCodecs[i].compFormats);
-		}
-		console.log("Video");
-		for (var i=0;i<codecs.videoCodecs.length;i++) {
-			console.log("Codec = " + codecs.videoCodecs[i].compFormats);
-		}
-	}
-	
-	function getNetwork() {
-		if (navigator.system.has("Network")) {
-			navigator.system.get("Network", printNetwork, fail, null);
-		}
-		else {
-			console.log("No Network sensor");
-		}
-	}
-
-	function printNetwork(connections) {
-		for (var i=0;i<connections.length;i++) {
-			alert("Type = " + connections[i].type);
-		}
-	}
-
-	function loadPage(){
-		PhoneGap.execSync("ChildBrowser", "showWebPage", ["http://www.tsn.ca"]);
-	}
-
-	function displayFile(evt) {
-		alert("Read Succeeded");
-		var fileString = evt.target.result;
-		console.log(fileString);	
-	}
-
-	function readFile(filename) {
-        var paths = navigator.fileMgr.getRootPaths();
-		var reader = new FileReader();
-		reader.onload = displayFile;
-		reader.readAsText(paths[0]+"/"+filename);
-	}
-	
-	function testCameraReader() {
-		navigator.camera.getPicture(function (imageURI) {
-                       console.log("my uri = " + imageURI);
-                       var win = function(evt) {
-                               console.log("win: "+evt.target.result);
-                       };
-                       var fail = function(evt) {
-                               alert("err: "+evt.target.error);
-                       };
-                       var reader = new FileReader();
-                       reader.onload = win;
-                       reader.onerror= fail;
-                       reader.readAsDataURL(imageURI);
-               }, function (fail) { alert(fail); }, { quality: 75, destinationType:
-Camera.DestinationType.FILE_URI });
-               return false;
-
-	}
-	
-	   
-    function testMimeType() {
-       var win = function(evt) {
-               console.log("win: "+evt.target.result);
-       };
-       var fail = function(evt) {
-               alert("err: "+evt.target.error);
-       };
-       var reader = new FileReader();
-       reader.onload = win;
-       reader.onerror= fail;
-       reader.readAsDataURL("/sdcard/newfile.xml");
-    }
-
-    my_media = null;
-
-   function testMedia() {
-   	    for (i=0; i<25; i++)
-        //my_media = new Media("http://audio.ibeat.org/content/p1rj1s/p1rj1s_-_rockGuitar.mp3");
-        //my_media = new Media("/android_asset/www/girl.mp3");
-        my_media = new Media("girl.mp3");
-		my_media.play();	
-  }
-  
-  function stopMedia() {
-  	my_media.release();
-  }
-
-
-	function truncSuccess(){
-		alert("Trunc Succeeded");
-	}
-
-	function truncFile() {
-        var paths = navigator.fileMgr.getRootPaths();
-		var writer = new FileWriter(paths[0]+"/my_file.txt");
-		writer.onwrite = writeSuccess;
-		writer.truncate(4);
-	}
-
-	function writeSuccess(){
-		console.log("Write Succeeded");
-	}
-
-	function writeFile() {
-        //var paths = navigator.fileMgr.getRootPaths();
-		var writer = new FileWriter("/sdcard/newfile.txt");
-		writer.onwrite = writeSuccess;
-		//writer.seek(writer.size);
-		//writer.truncate(0);
-		writer.write("Best.\n");
-		console.log(writer.position);
-		writer.write("Coder.\n");
-		console.log(writer.position);
-		//writer.truncate(5);
-		//console.log(writer.position);		
-		//writer.write("Ever.\n");
-		//console.log(writer.position);
-		//writer = new FileWriter("sdcard/newfile.txt",true);
-		//writer.write("my appended text");
-		//console.log(writer.position);
-	}
-
-	function writeXml() {
-        var paths = navigator.fileMgr.getRootPaths();
-		var writer = new FileWriter(paths[0]+"/newfile.xml");
-		writer.onwrite = writeSuccess;
-		//writer.seek(writer.size);
-		//writer.truncate(0);
-		writer.write('<?xml version="1.0" encoding="UTF-8"?>');
-		writer.write('<test prop="ack">\n');
-		console.log(writer.position);
-		writer.write("Data\n");
-		console.log(writer.position);
-		writer.write("</test>\n");
-		console.log(writer.position);
-	}
-
-	function fsSuccess(fs){
-		alert("FS Succeeded");
-		console.log("FS name = " + fs.name);
-		console.log("FS.root.name = " + fs.root.name);
-		var rootDir = new DirectoryEntry(fs.root);
-		rootDir.getMetadata();
-	}
-
-	function getFS() {
-		navigator.fileMgr.requestFileSystem("", fsSuccess, fail);
-	}
-
-	function getFileRoots() {
-		var paths = navigator.fileMgr.getRootPaths();
-		for (i=0; i<paths.length; i++) {
-			console.log(paths[i]);
-		}
-	}
-	
-	function testBarcode() {
-		window.plugins.barcodeScanner.scan( null, function(result) {
-		        alert("We got a barcode: " + result);
-		    }, function(error) {
-		        alert("Scanning failed: " + error);
-		    }, {yesString: "Install"}
-		);
-	}
-
-function view()
-{
-
-navigator.notification.confirm("Get fresh stock detail?",
-       function(g) { 
-	       if (g == 1) {
-		   	console.log("you pressed yes");
-		   }
-		   else { console.log("you pressed no");
-		   window.location.href = 'upload.html';
-		    }
-	   },
-       'Confirm Dialog',
-       'Yes,No');
-}
-
-    function testFile() {
-        var mgr = new FileMgr();
-        var exists = mgr.testFileExists("newfile.txt",
-        successFileExists, fail);
-        //alert(exists);
-    }
-
-	function successFileExists(exists) {
-	 alert(exists);
-	}
-	
-	function init(){
-		console.log("GOT AN ONLOAD!!!")
-		document.addEventListener("touchmove", preventBehavior, false);
-		document.addEventListener("deviceready", deviceInfo, true);		
-	}
-	
-	function vidSuccess(message) {
-        console.log("&&&&&&&&&&&&&&");
-        console.log("&&&&&&&&&&&&&&");
-        console.log("&&&&&&&&&&&&&&");
-        console.log("&&&&&&&&&&&&&&");
-        console.log("&&&&&&&&&&&&&&");
-        console.log("&&&&&&&&&&&&&&");
-        console.log("&&&&&&&&&&&&&&");
-        console.log("&&&&&&&&&&&&&&");
-        console.log("&&&&&&&&&&&&&&");
-        console.log("&&&&&&&&&&&&&&");
-        console.log("&&&&&&&&&&&&&&");
-        console.log("Results: " + message);
-        console.log("Results Length: " + message.length);
-		for (var i=0; i<message.length; i++) {
-			console.log(message[i].name);
-		}
-		//message[0].getFormatData(formatWin, null);
-      var viewport = document.getElementById('viewport');
-      console.log("Doing using file path");
-      console.log(message[0].fullPath);
-      viewport.style.display = "";
-      viewport.style.position = "absolute";
-      viewport.style.top = "10px";
-      viewport.style.left = "10px";
-      //document.getElementById("test_img").src = "data:image/jpeg;base64," + data;
-      document.getElementById("test_img").src = message[0].fullPath;
-
-	}
-	
-	function formatWin(mediaFileData) {
-        console.log("codecs: " + mediaFileData.codecs);
-        console.log("bitrate: " + mediaFileData.bitrate);
-        console.log("height: " + mediaFileData.height);
-        console.log("width: " + mediaFileData.width);
-        console.log("duration: " + mediaFileData.duration);
-	}
-    
-    function getVideo() {
-        navigator.device.capture.captureVideo(vidSuccess, fail, {"limit": 2});
-    }
-    
-    function getImage() {
-        navigator.device.capture.captureImage(vidSuccess, fail, {"limit": 3});
-    }
-    
-    function getAudio() {
-        navigator.device.capture.captureAudio(vidSuccess, fail, {"limit": 2});
-    }
-    
-    function status() {
-        window.plugins.statusBarNotification.notify("Put your title here", "Put your message here");
-    }
-	
-  </script>
-  </head>
-  <body onload="init();" id="stage" class="theme">
-    <h1>Welcome to PhoneGap!</h1>
-    <h2>this file is located at assets/index.html</h2>
-    <div id="info">
-      <h4>Platform: <span id="platform">&nbsp;</span></h4>
-      <h4>Version: <span id="version">&nbsp;</span></h4>
-      <h4>UUID:   <span id="uuid">&nbsp;</span></h4>
-      <h4>Battery:   <span id="battery">&nbsp;</span></h4>
+        <div data-role="content" id="schedule" style="display:none">   
+            <a href="#add" data-role="button" data-icon="add">Add a new schedule</a>
+        </div><!-- /content -->
     </div>
-    <dl id="accel-data">
-      <dt>X:</dt><dd id="x">&nbsp;</dd>
-      <dt>Y:</dt><dd id="y">&nbsp;</dd>
-      <dt>Z:</dt><dd id="z">&nbsp;</dd>
-    </dl>
-    <a href="#" onclick="document.location='contact.html'">remote html</a>  
-    <a href="http://www.google.com">straight href</a>  
-    <a href="#" onclick="navigator.app.loadUrl('http://www.google.com');">Load Google</a>
-    <a href="#" onClick="document.location.reload();" >Reload</a>  
-    <a href="#" class="btn large" onclick="status();">Status</a>
-    <a href="#" class="btn large" onclick="show_pic();">Get a Picture</a>
-    <a href="#" class="btn large" onclick="getAudio();">Get Audio</a>
-    <a href="#" class="btn large" onclick="getImage();">Get Image</a>
-    <a href="#" class="btn large" onclick="getVideo();">Get Video</a>
-    <a href="#" class="btn large" onclick="testFile();">Test File Exists</a>
-    <a href="#" class="btn large" onclick="get_contacts();">Get phone's contacts</a>
-    <a href="#" class="btn large" onclick="clone_contact();">Clone contact</a>
-    <a href="#" class="btn large" onclick="remove_contact();">Remove contact</a>
-    <a href="#" class="btn large" onclick="create_contact();">Create contact</a>
-    <a href="#" class="btn large" onclick="save_contact();">Save contact</a>
-    <a href="#" class="btn large" onclick="location.href='market://search?q=pname:org.npr.android.news'">Test market</a>
-    <a href="#" class="btn large" onclick="testBarcode();">Test Barcode</a>
-    <a href="#" class="btn large" onclick="testMedia();">Test Media</a>
-    <a href="#" class="btn large" onclick="stopMedia();">Stop Media</a>
-    <a href="#" class="btn large" onclick="testMimeType();">Mime Type</a>
-    <a href="#" class="btn large" onclick="testCameraReader();">Camera Reader</a>
-    <a href="#" class="btn large" onclick="getFileRoots();">Test Root</a>
-    <a href="#" class="btn large" onclick="getFS();">Get FS</a>
-    <a href="#" class="btn large" onclick="writeXml();">Write XML File</a>
-    <a href="#" class="btn large" onclick="readFile('newfile.xml');">Read XML File</a>
-    <a href="#" class="btn large" onclick="writeFile();">Write File</a>
-    <a href="#" class="btn large" onclick="truncFile();">Truncate File</a>
-    <a href="#" class="btn large" onclick="readFile('newfile.txt');">Read File</a>
-    <a href="#" class="btn large" onclick="loadPage();">Load Page</a>
-    <a href="#" class="btn large" onclick="getNetwork();">Get Network</a>
-    <a href="#" class="btn large" onclick="getCodecs();">Get Codecs</a>
-    <a href="#" class="btn large" onclick="getStorage();">Get Storage</a>
-    <a href="#" class="btn large" onclick="getTemp();">Has Temperature</a>
-    <a href="#" class="btn large" onclick="getLight();">Has Light</a>
-    <a href="#" class="btn large" onclick="getPressure();">Has Pressure</a>
-    <a href="#" class="btn large" onclick="watchAccel();">Watch Accelerometer</a>
-    <a href="#" class="btn large" onclick="getLocation();">Get Location</a>
-	<a href="tel://411" class="btn large">Call 411</a>
-    <a href="#" class="btn large" onclick="beep();">Beep</a>
-    <a href="#" class="btn large" onclick="vibrate();">Vibrate</a>
-    <a href="#" class="btn large" onclick="getCpuUsage();">Has CPU</a>
-    <a href="#" class="btn large" onclick="getPowerUsage();">Has Power</a>
-    <div id="viewport" class="viewport" style="display: none;">       
-      <!-- img style="width:60px;height:60px" id="test_img" src="" -->
-      <img id="test_img" height="200" width="200" src="" />
-    </div> 
-  </body>
+
+</div><!-- /page -->
+
+<div data-role="page" id="add">
+
+    <div data-role="header">
+        <h1>New schedule</h1>
+    </div><!-- /header -->
+
+    <div>
+        <div data-role="content">   
+            <label for="flip-a">Wifi:</label>
+                <select name="slider" id="flip-a" data-role="slider">
+                    <option value="yes">On</option>
+                    <option value="no">Off</option>
+                </select> 
+            <label for="flip-b">Bluetooth:</label>
+                <select name="slider" id="flip-b" data-role="slider">
+                    <option value="yes">On</option>
+                    <option value="no">Off</option>
+                </select> 
+            <label for="flip-c">GPS:</label>
+                <select name="slider" id="flip-c" data-role="slider">
+                    <option value="yes">On</option>
+                    <option value="no">Off</option>
+                </select> 
+        </div><!-- /content -->
+    </div>
+
+</div><!-- /page -->
+
+</body>
 </html>
