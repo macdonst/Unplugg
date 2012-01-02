@@ -38,13 +38,17 @@
             } else {
                 $('#unpluggBtn').show();
                 $('#unpluggBtn2').hide();
+                clearTimeout(timeoutId);
                 window.plugins.unplugg.toggleAirplaneMode(false);
             }
         }
         
-        function addSchedule() {
-            console.log("Got here");
-            window.plugins.unplugg.addSchedule({});
+        var timeoutId;
+        
+        function addSchedule(interval) {
+            console.log("Setting Timer");
+            toggleAirplane(true);
+            timeoutId = setTimeout("toggleAirplane(false)", interval * 60 * 1000);
         }
     </script>
 </head> 
@@ -66,13 +70,14 @@
         <div data-role="content" id="status">
             <a href="#" id="unpluggBtn" onclick="toggleAirplane(true)" data-role="button">Unplugg Now!</a>
             <a href="#" id="unpluggBtn2" style="display: none"  data-theme="b" onclick="toggleAirplane(false)" data-role="button">Plugg In!</a>            
-            <label for="currentStatus">Current Status:</label>
-            <div id="currentStatus"></div>
+            <!-- label for="currentStatus">Current Status:</label>
+            <div id="currentStatus"></div -->
+            
             <label for="unplugs">Unplugg for:</label>
             <div data-role="controlgroup" id="unplugs">                
-                <a href="#" onclick="addSchedule()" data-role="button">15 minutes</a>
-                <a href="index.html" data-role="button">30 minutes</a>
-                <a href="index.html" data-role="button">1 hour</a>
+                <a href="#" onclick="addSchedule(15)" data-role="button">15 minutes</a>
+                <a href="#" onclick="addSchedule(30)" data-role="button">30 minutes</a>
+                <a href="#" onclick="addSchedule(60)" data-role="button">1 hour</a>
             </div>   
         </div><!-- /content -->
     

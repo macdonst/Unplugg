@@ -73,7 +73,7 @@ public class ServiceManager extends Plugin {
 
         // Post an intent to reload
         Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
-        intent.putExtra("state", true);
+        intent.putExtra("state", enabled);
         this.ctx.sendBroadcast(intent);
     }
     
