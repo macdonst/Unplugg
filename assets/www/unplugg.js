@@ -16,6 +16,17 @@ Unplugg.prototype.addSchedule = function(schedule, successCallback, errorCallbac
 };
 
 /**
+ * Add a new schedule to turn off services
+ * 
+ * @param {Object} schedule
+ * @param {Object} successCallback
+ * @param {Object} errorCallback
+ */
+Unplugg.prototype.toggleAirplaneMode = function(enabled, successCallback, errorCallback) {
+     return PhoneGap.exec(successCallback, errorCallback, "Unplugg", "toggleAirplaneMode", [enabled]);
+};
+
+/**
  * Load Unplugg interface
  */
 PhoneGap.addConstructor(function() {

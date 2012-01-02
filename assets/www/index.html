@@ -22,11 +22,24 @@
         }
         
         function onBatteryStatus(info) {
-            console.log("Level: " + info.level + " isPlugged: " + info.isPlugged); 
+            console.log("Level: " + info.level + " isPlugged: " + info.isPlugged);
         }
         
         function toggleDiv(id) {
             $("#"+id).show().siblings().hide();
+        }
+        
+        function toggleAirplane(enable) {
+            console.log("Toggle Airplane");
+            if (enable) {
+                $('#unpluggBtn').hide();
+                $('#unpluggBtn2').show();
+                window.plugins.unplugg.toggleAirplaneMode(true);
+            } else {
+                $('#unpluggBtn').show();
+                $('#unpluggBtn2').hide();
+                window.plugins.unplugg.toggleAirplaneMode(false);
+            }
         }
         
         function addSchedule() {
@@ -51,7 +64,10 @@
 
     <div>
         <div data-role="content" id="status">
-            Add battery info here<br/>
+            <a href="#" id="unpluggBtn" onclick="toggleAirplane(true)" data-role="button">Unplugg Now!</a>
+            <a href="#" id="unpluggBtn2" style="display: none"  data-theme="b" onclick="toggleAirplane(false)" data-role="button">Plugg In!</a>            
+            <label for="currentStatus">Current Status:</label>
+            <div id="currentStatus"></div>
             <label for="unplugs">Unplugg for:</label>
             <div data-role="controlgroup" id="unplugs">                
                 <a href="#" onclick="addSchedule()" data-role="button">15 minutes</a>

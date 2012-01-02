@@ -5,8 +5,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.phonegap.api.PhonegapActivity;
@@ -36,6 +40,7 @@ public class ServiceManager extends Plugin {
             if (action.equals("addSchedule")) {
                 JSONObject schedule = args.getJSONObject(0);
                 
+                /*
                 Log.d(LOG_TAG, "Setting wifi to disabled");
                 // Disable wifi
                 wifiMgr.setWifiEnabled(false);
@@ -44,7 +49,12 @@ public class ServiceManager extends Plugin {
                 if (blueMgr != null) {
                     blueMgr.disable();
                 }
+                */
                 
+                return new PluginResult(status, result);
+            } else if (action.equals("toggleAirplaneMode")) {
+                boolean enabled = args.getBoolean(0);
+                toggleAirplaneMode(enabled);
                 return new PluginResult(status, result);
             }
             else {
@@ -54,6 +64,17 @@ public class ServiceManager extends Plugin {
         } catch (JSONException e) {
             return new PluginResult(PluginResult.Status.JSON_EXCEPTION);
         }
+    }
+
+    private void toggleAirplaneMode(boolean enabled) {
+        // toggle airplane mode
+        Settings.System.putInt(this.ctx.getContentResolver(),
+              Settings.System.AIRPLANE_MODE_ON, enabled ? 1 : 0);
+
+        // Post an intent to reload
+        Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        intent.putExtra("state", true);
+        this.ctx.sendBroadcast(intent);
     }
     
     /**
