@@ -1,6 +1,6 @@
 package com.simonmacdonald.unplugg;
 
-import com.phonegap.DroidGap;
+import org.apache.cordova.DroidGap;
 
 import android.os.Bundle;
 
@@ -9,7 +9,7 @@ public class UnpluggActivity extends DroidGap {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.init();
+        //super.init();
         // super.setIntegerProperty("splashscreen", R.drawable.splash);
         //this.appView.getSettings().setPluginsEnabled(true);
         this.setStringProperty("errorUrl", "file:///android_asset/www/error.html");

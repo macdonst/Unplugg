@@ -3,4 +3,4 @@ default.properties
 bin
 gen
 *.tmp
-
+assets/www/.tmp*

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="jqm/jquery.mobile-1.0.css" />
     <script type="text/javascript" src="jqm/jquery-1.7.1.js"></script>
     <script type="text/javascript" src="jqm/jquery.mobile-1.0.js"></script>
-    <script type="text/javascript" src="phonegap-1.3.0rc2.js"></script>
+    <script type="text/javascript" src="cordova-1.6.0.js"></script>
     <script type="text/javascript" src="unplugg.js"></script>
     <script type="text/javascript">
         function init() {
@@ -16,8 +16,7 @@
         }
         
         function onDevReady() {
-            console.log("We are good to go.");
-            
+            console.log("We are good to go.");            
             window.addEventListener("batterystatus", onBatteryStatus, false);
         }
         
@@ -75,7 +74,7 @@
             
             <label for="unplugs">Unplugg for:</label>
             <div data-role="controlgroup" id="unplugs">                
-                <a href="#" onclick="addSchedule(15)" data-role="button">15 minutes</a>
+                <a href="#" onclick="addSchedule(1)" data-role="button">15 minutes</a>
                 <a href="#" onclick="addSchedule(30)" data-role="button">30 minutes</a>
                 <a href="#" onclick="addSchedule(60)" data-role="button">1 hour</a>
             </div>   
@@ -84,6 +83,7 @@
         <div data-role="content" id="schedule" style="display:none">   
             <a href="#add" data-role="button" data-icon="add">Add a new schedule</a>
         </div><!-- /content -->
+    
     </div>
 
 </div><!-- /page -->

@@ -12,7 +12,7 @@ function Unplugg() {
  * @param {Object} errorCallback
  */
 Unplugg.prototype.addSchedule = function(schedule, successCallback, errorCallback) {
-     return PhoneGap.exec(successCallback, errorCallback, "Unplugg", "addSchedule", [schedule]);
+     return cordova.exec(successCallback, errorCallback, "Unplugg", "addSchedule", [schedule]);
 };
 
 /**
@@ -23,12 +23,12 @@ Unplugg.prototype.addSchedule = function(schedule, successCallback, errorCallbac
  * @param {Object} errorCallback
  */
 Unplugg.prototype.toggleAirplaneMode = function(enabled, successCallback, errorCallback) {
-     return PhoneGap.exec(successCallback, errorCallback, "Unplugg", "toggleAirplaneMode", [enabled]);
+     return cordova.exec(successCallback, errorCallback, "Unplugg", "toggleAirplaneMode", [enabled]);
 };
 
 /**
  * Load Unplugg interface
  */
-PhoneGap.addConstructor(function() {
-    PhoneGap.addPlugin("unplugg", new Unplugg());
+cordova.addConstructor(function() {
+    cordova.addPlugin("unplugg", new Unplugg());
 });

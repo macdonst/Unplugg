@@ -53,6 +53,7 @@ public class ServiceManager extends Plugin {
                 
                 return new PluginResult(status, result);
             } else if (action.equals("toggleAirplaneMode")) {
+                Log.d(LOG_TAG, "Toggle mode");
                 boolean enabled = args.getBoolean(0);
                 toggleAirplaneMode(enabled);
                 return new PluginResult(status, result);
@@ -74,7 +75,7 @@ public class ServiceManager extends Plugin {
         // Post an intent to reload
         Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         intent.putExtra("state", enabled);
-        this.ctx.sendBroadcast(intent);
+        this.ctx.getContext().sendBroadcast(intent);
     }
     
     /**
