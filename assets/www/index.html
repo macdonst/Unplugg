@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"> 
 
     <link rel="stylesheet" href="jqm/jquery.mobile-1.0.css" />
+    <link rel="stylesheet" href="jqm/mobiscroll-1.6.css" />
     <script type="text/javascript" src="jqm/jquery-1.7.1.js"></script>
     <script type="text/javascript" src="jqm/jquery.mobile-1.0.js"></script>
+    <script type="text/javascript" src="jqm/mobiscroll-1.6.js"></script>
     <script type="text/javascript" src="cordova-1.6.0.js"></script>
     <script type="text/javascript" src="unplugg.js"></script>
     <script type="text/javascript" src="LocalNotification.js"></script>
@@ -18,18 +20,19 @@
         
         function onDevReady() {
             console.log("We are good to go.");            
-            window.addEventListener("batterystatus", onBatteryStatus, false);
         }
         
-        function onBatteryStatus(info) {
-            console.log("Level: " + info.level + " isPlugged: " + info.isPlugged);
-        }
+        $(document).ready(function() {
+            // Handler for .ready() called.
+            $('#date1').scroller({ preset: 'time', theme: "android", mode: "clickpick" });
+            $('#date2').scroller({ preset: 'time', theme: "android", mode: "clickpick" });
+        });
         
         function toggleDiv(id) {
             $("#"+id).show().siblings().hide();
         }
         
-        function toggleAirplane(enable) {
+        function unpluggNow(enable) {
             console.log("Toggle Airplane");
             if (enable) {
                 $('#unpluggBtn').hide();
@@ -43,13 +46,13 @@
             }
         }
         
-        var timeoutId;
-        
-        function addSchedule(interval) {
+        function unpluggFor(interval) {
             console.log("Setting Timer");
-            //toggleAirplane(true);
-            //timeoutId = setTimeout("toggleAirplane(false)", interval * 60 * 1000);
+
+            $('#unpluggBtn').hide();
+            $('#unpluggBtn2').show();
             window.plugins.unplugg.toggleAirplaneMode(true);
+
             var newDateObj = new Date();
             newDateObj.setTime(newDateObj.getTime() + (interval * 60 * 1000));
             window.plugins.localNotification.add(
@@ -73,17 +76,17 @@
 
     <div>
         <div data-role="content" id="status">
-            <a href="#" id="unpluggBtn" onclick="toggleAirplane(true)" data-role="button">Unplugg Now!</a>
-            <a href="#" id="unpluggBtn2" style="display: none"  data-theme="b" onclick="toggleAirplane(false)" data-role="button">Plugg In!</a>            
+            <a href="#" id="unpluggBtn" onclick="unpluggNow(true)" data-role="button">Unplugg Now!</a>
+            <a href="#" id="unpluggBtn2" style="display: none"  data-theme="b" onclick="unpluggNow(false)" data-role="button">Plugg In!</a>            
             <!-- label for="currentStatus">Current Status:</label>
             <div id="currentStatus"></div -->
             
             <label for="unplugs">Unplugg for:</label>
             <div data-role="controlgroup" id="unplugs">                
-                <a href="#" onclick="addSchedule(1)" data-role="button">1 minute</a>
-                <a href="#" onclick="addSchedule(15)" data-role="button">15 minutes</a>
-                <a href="#" onclick="addSchedule(30)" data-role="button">30 minutes</a>
-                <a href="#" onclick="addSchedule(60)" data-role="button">1 hour</a>
+                <a href="#" onclick="unpluggFor(1)" data-role="button">1 minute</a>
+                <a href="#" onclick="unpluggFor(15)" data-role="button">15 minutes</a>
+                <a href="#" onclick="unpluggFor(30)" data-role="button">30 minutes</a>
+                <a href="#" onclick="unpluggFor(60)" data-role="button">1 hour</a>
             </div>   
         </div><!-- /content -->
     
@@ -103,21 +106,11 @@
 
     <div>
         <div data-role="content">   
-            <label for="flip-a">Wifi:</label>
-                <select name="slider" id="flip-a" data-role="slider">
-                    <option value="yes">On</option>
-                    <option value="no">Off</option>
-                </select> 
-            <label for="flip-b">Bluetooth:</label>
-                <select name="slider" id="flip-b" data-role="slider">
-                    <option value="yes">On</option>
-                    <option value="no">Off</option>
-                </select> 
-            <label for="flip-c">GPS:</label>
-                <select name="slider" id="flip-c" data-role="slider">
-                    <option value="yes">On</option>
-                    <option value="no">Off</option>
-                </select> 
+            <label for="date1">Unplugg at:</label>
+            <input type="text" name="date1" id="date1" class="mobiscroll" readonly="readonly" value="" />
+            <label for="date2">Wake up at:</label>
+            <input type="text" name="date2" id="date2" class="mobiscroll" readonly="readonly" value="" />
+            <button data-role="button">Save</button>
         </div><!-- /content -->
     </div>
 
