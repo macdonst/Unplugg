@@ -68,6 +68,7 @@ public class ServiceManager extends Plugin {
     }
 
     private void toggleAirplaneMode(boolean enabled) {
+        Log.d(LOG_TAG, "Enabled is " + enabled);
         // toggle airplane mode
         Settings.System.putInt(this.ctx.getContentResolver(),
               Settings.System.AIRPLANE_MODE_ON, enabled ? 1 : 0);

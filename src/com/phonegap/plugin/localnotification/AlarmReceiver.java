@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 
 /**
@@ -27,6 +28,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     public static final String SUBTITLE = "ALARM_SUBTITLE";
     public static final String TICKER_TEXT = "ALARM_TICKER";
     public static final String NOTIFICATION_ID = "NOTIFICATION_ID";
+    public static final String WAKE_UP = "WAKE_UP";
 
     /* Contains time in 24hour format 'HH:mm' e.g. '04:30' or '18:23' */
     public static final String HOUR_OF_DAY = "HOUR_OF_DAY";
@@ -43,6 +45,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         final String tickerText = bundle.getString(TICKER_TEXT);
         final String notificationTitle = bundle.getString(TITLE);
         final String notificationSubText = bundle.getString(SUBTITLE);
+        final boolean wake = bundle.getBoolean(WAKE_UP);
         int notificationId = 0;
 
         try {
@@ -78,6 +81,13 @@ public class AlarmReceiver extends BroadcastReceiver {
         notification.vibrate = new long[] { 0, 100, 200, 300 };
         notification.setLatestEventInfo(context, notificationTitle, notificationSubText, contentIntent);
 
+        Settings.System.putInt(context.getContentResolver(),
+                Settings.System.AIRPLANE_MODE_ON, wake ? 1 : 0);
+
+        Intent wakeIntent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        wakeIntent.putExtra("state", 0);
+        context.sendBroadcast(wakeIntent);
+        
         /*
          * If you want all reminders to stay in the notification bar, you should
          * generate a random ID. If you want do replace an existing

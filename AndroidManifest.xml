@@ -43,7 +43,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+	    <receiver android:name="com.phonegap.plugin.localnotification.AlarmReceiver" >
+	    </receiver>
+	
+	    <receiver android:name="com.phonegap.plugin.localnotification.AlarmRestoreOnBoot" >
+	        <intent-filter>
+	            <action android:name="android.intent.action.BOOT_COMPLETED" />
+	        </intent-filter>
+	    </receiver>
     </application>
     
-
 </manifest>

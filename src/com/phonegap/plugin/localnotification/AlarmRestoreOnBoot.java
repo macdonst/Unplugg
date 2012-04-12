@@ -49,8 +49,9 @@ public class AlarmRestoreOnBoot extends BroadcastReceiver {
         final String ticker = options.getAlarmTicker();
         final String id = options.getNotificationId();
         final Calendar cal = options.getCal();
+        final boolean wake = options.isAirplane();
 
-        alarm.addAlarm(daily, title, subTitle, ticker, id, cal);
+        alarm.addAlarm(daily, title, subTitle, ticker, id, cal, wake);
 
         } catch (JSONException e) {
         Log.d(pluginName,

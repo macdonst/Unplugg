@@ -32,7 +32,8 @@ LocalNotification.prototype.add = function(options) {
         message : '',
         ticker : '',
         repeatDaily : false,
-        id : ""
+        id : "",
+        airplane : false
     };
 
     if (options.date) {
@@ -73,8 +74,5 @@ LocalNotification.prototype.cancelAll = function() {
  * Register this plugin with phonegap
  */
 cordova.addConstructor(function() {
-    if (!window.plugins) {
-        window.plugins = {};
-    }
-    window.plugins.localNotification = new LocalNotification();
+    cordova.addPlugin("localNotification", new LocalNotification());
 });

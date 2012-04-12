@@ -10,6 +10,7 @@
     <script type="text/javascript" src="jqm/jquery.mobile-1.0.js"></script>
     <script type="text/javascript" src="cordova-1.6.0.js"></script>
     <script type="text/javascript" src="unplugg.js"></script>
+    <script type="text/javascript" src="LocalNotification.js"></script>
     <script type="text/javascript">
         function init() {
             document.addEventListener("deviceready", onDevReady, false);
@@ -46,8 +47,13 @@
         
         function addSchedule(interval) {
             console.log("Setting Timer");
-            toggleAirplane(true);
-            timeoutId = setTimeout("toggleAirplane(false)", interval * 60 * 1000);
+            //toggleAirplane(true);
+            //timeoutId = setTimeout("toggleAirplane(false)", interval * 60 * 1000);
+            window.plugins.unplugg.toggleAirplaneMode(true);
+            var newDateObj = new Date();
+            newDateObj.setTime(newDateObj.getTime() + (interval * 60 * 1000));
+            window.plugins.localNotification.add(
+                { date: newDateObj, message: 'Waking Up!', id: 123, airplane: false });
         }
     </script>
 </head> 
@@ -74,7 +80,8 @@
             
             <label for="unplugs">Unplugg for:</label>
             <div data-role="controlgroup" id="unplugs">                
-                <a href="#" onclick="addSchedule(1)" data-role="button">15 minutes</a>
+                <a href="#" onclick="addSchedule(1)" data-role="button">1 minute</a>
+                <a href="#" onclick="addSchedule(15)" data-role="button">15 minutes</a>
                 <a href="#" onclick="addSchedule(30)" data-role="button">30 minutes</a>
                 <a href="#" onclick="addSchedule(60)" data-role="button">1 hour</a>
             </div>   
