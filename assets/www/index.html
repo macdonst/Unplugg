@@ -19,7 +19,7 @@
         }
         
         function onDevReady() {
-            console.log("We are good to go.");            
+            console.log("We are good to go.");                     
         }
         
         $(document).ready(function() {
@@ -57,6 +57,41 @@
             newDateObj.setTime(newDateObj.getTime() + (interval * 60 * 1000));
             window.plugins.localNotification.add(
                 { date: newDateObj, message: 'Waking Up!', id: 123, airplane: false });
+        }
+        
+        function saveSchedule() {
+            var startDate = parseDate($('#date1').val());
+            var endDate = parseDate($('#date2').val());
+            var reoccur = $('checkbox-0').is(':checked');
+            //window.plugins.unplugg.addSchedule({"start": start, "end": end, "reoccur": false});
+            window.plugins.localNotification.add(
+                { date: startDate, message: 'Go to sleep!', id: 111, airplane: true, repeatDaily: reoccur });
+            window.plugins.localNotification.add(
+                { date: endDate, message: 'Waking up now!', id: 222, airplane: false, repeateDaily: reoccur });
+        }
+        
+        function parseDate(datestring) {
+            var startDate = new Date();
+            
+            hour = parseInt(datestring.substring(0, 2));
+            min = parseInt(datestring.substring(3,5));
+            pm = false;
+            if (datestring.substring(6,8) == "PM") {
+                pm = true;
+            }
+            if (pm && hour != 12) {
+                hour += 12;
+            }
+            if (!pm && hour === 12) {
+                hour = 0;
+            }
+            console.log("hour = " + hour + " min = " + min + " pm " + pm);
+            
+            startDate.setHours(hour);
+            startDate.setMinutes(min);
+            startDate.setSeconds(0);
+            
+            return startDate;
         }
     </script>
 </head> 
@@ -110,7 +145,9 @@
             <input type="text" name="date1" id="date1" class="mobiscroll" readonly="readonly" value="" />
             <label for="date2">Wake up at:</label>
             <input type="text" name="date2" id="date2" class="mobiscroll" readonly="readonly" value="" />
-            <button data-role="button">Save</button>
+            <input type="checkbox" name="checkbox-0" id="checkbox-0" class="custom" />
+            <label for="checkbox-0">Repeat daily</label>
+            <button data-role="button" onclick="saveSchedule()">Save</button>
         </div><!-- /content -->
     </div>
 

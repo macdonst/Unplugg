@@ -58,7 +58,7 @@ public class AlarmOptions {
             alarmTicker = options.optString("ticker");
             repeatDaily = options.optBoolean("repeatDaily");
             notificationId = options.optString("id");
-            airplane = options.optBoolean("wake");
+            airplane = options.optBoolean("airplane");
         }
     }
 

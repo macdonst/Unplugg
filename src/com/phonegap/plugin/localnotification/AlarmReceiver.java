@@ -45,7 +45,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         final String tickerText = bundle.getString(TICKER_TEXT);
         final String notificationTitle = bundle.getString(TITLE);
         final String notificationSubText = bundle.getString(SUBTITLE);
-        final boolean wake = bundle.getBoolean(WAKE_UP);
+        final boolean airplane = bundle.getBoolean(WAKE_UP);
         int notificationId = 0;
 
         try {
@@ -82,10 +82,12 @@ public class AlarmReceiver extends BroadcastReceiver {
         notification.setLatestEventInfo(context, notificationTitle, notificationSubText, contentIntent);
 
         Settings.System.putInt(context.getContentResolver(),
-                Settings.System.AIRPLANE_MODE_ON, wake ? 1 : 0);
+                Settings.System.AIRPLANE_MODE_ON, airplane ? 1 : 0);
+        
+        Log.d("AlarmReceiver", "Airplane is set to [" + airplane + "]");
 
         Intent wakeIntent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
-        wakeIntent.putExtra("state", 0);
+        wakeIntent.putExtra("state", airplane);
         context.sendBroadcast(wakeIntent);
         
         /*

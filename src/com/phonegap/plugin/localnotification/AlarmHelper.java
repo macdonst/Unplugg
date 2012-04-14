@@ -33,7 +33,7 @@ public class AlarmHelper {
      *      Calendar)
      */
     public boolean addAlarm(boolean repeatDaily, String alarmTitle, String alarmSubTitle, String alarmTicker,
-        String notificationId, Calendar cal, boolean wake) {
+        String notificationId, Calendar cal, boolean airplane) {
 
         final long triggerTime = cal.getTimeInMillis();
         final Intent intent = new Intent(this.ctx, AlarmReceiver.class);
@@ -45,7 +45,7 @@ public class AlarmHelper {
         intent.putExtra(AlarmReceiver.SUBTITLE, alarmSubTitle);
         intent.putExtra(AlarmReceiver.TICKER_TEXT, alarmTicker);
         intent.putExtra(AlarmReceiver.NOTIFICATION_ID, notificationId);
-        intent.putExtra(AlarmReceiver.WAKE_UP, wake);
+        intent.putExtra(AlarmReceiver.WAKE_UP, airplane);
         intent.putExtra(AlarmReceiver.HOUR_OF_DAY, hour);
         intent.putExtra(AlarmReceiver.MINUTE, min);
     

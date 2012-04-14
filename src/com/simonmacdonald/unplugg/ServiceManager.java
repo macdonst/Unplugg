@@ -40,16 +40,11 @@ public class ServiceManager extends Plugin {
             if (action.equals("addSchedule")) {
                 JSONObject schedule = args.getJSONObject(0);
                 
-                /*
-                Log.d(LOG_TAG, "Setting wifi to disabled");
-                // Disable wifi
-                wifiMgr.setWifiEnabled(false);
+                Log.d(LOG_TAG, "start = " + schedule.getString("start"));
+                Log.d(LOG_TAG, "end = " + schedule.getString("end"));
+                Log.d(LOG_TAG, "reoccur = " + schedule.getString("reoccur"));
                 
-                // Disable bluetooth
-                if (blueMgr != null) {
-                    blueMgr.disable();
-                }
-                */
+                
                 
                 return new PluginResult(status, result);
             } else if (action.equals("toggleAirplaneMode")) {
@@ -87,7 +82,5 @@ public class ServiceManager extends Plugin {
      */
     public void setContext(PhonegapActivity ctx) {
         super.setContext(ctx);
-        this.wifiMgr = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE); 
-        this.blueMgr = BluetoothAdapter.getDefaultAdapter();
     }
 }

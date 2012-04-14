@@ -82,14 +82,14 @@ public class LocalNotification extends Plugin {
      * @return A pluginresult.
      */
     public PluginResult add(boolean repeatDaily, String alarmTitle, String alarmSubTitle, String alarmTicker,
-        String alarmId, Calendar cal, boolean wake) {
+        String alarmId, Calendar cal, boolean airplane) {
         final long triggerTime = cal.getTimeInMillis();
         final String recurring = repeatDaily ? "daily" : "onetime";
     
         Log.d(PLUGIN_NAME, "Adding " + recurring + " notification: '" + alarmTitle + alarmSubTitle + "' with id: "
             + alarmId + " at timestamp: " + triggerTime);
     
-        boolean result = alarm.addAlarm(repeatDaily, alarmTitle, alarmSubTitle, alarmTicker, alarmId, cal, wake);
+        boolean result = alarm.addAlarm(repeatDaily, alarmTitle, alarmSubTitle, alarmTicker, alarmId, cal, airplane);
         if (result) {
             return new PluginResult(PluginResult.Status.OK);
         } else {
