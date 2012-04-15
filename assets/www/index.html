@@ -14,12 +14,46 @@
     <script type="text/javascript" src="unplugg.js"></script>
     <script type="text/javascript" src="LocalNotification.js"></script>
     <script type="text/javascript">
+        var db = null;
+        
         function init() {
             document.addEventListener("deviceready", onDevReady, false);
         }
         
         function onDevReady() {
-            console.log("We are good to go.");                     
+            console.log("We are good to go.");    
+            db = window.openDatabase("Unplugg", "1.0", "Unplugg schedule DB", 200000);
+            db.transaction(function(tx) {
+                //tx.executeSql('Drop table if exists UNPLUGG')
+                tx.executeSql('CREATE TABLE IF NOT EXISTS UNPLUGG (startId, start, endId, end, reoccur)');
+                tx.executeSql('SELECT * FROM UNPLUGG', [], populateSchedule, function(){
+                    console.log("query failed")
+                });
+                }, function() { 
+                    console.log("Unable to create DB"); 
+                }, function(){
+                    console.log("DB created");
+            });                 
+        }
+        
+        function populateSchedule(tx, results) {
+            var len = results.rows.length;
+            console.log("UNPLUGG table: " + len + " rows found.");
+            for (var i=0; i<len; i++){
+                ui_addSchedule(results.rows.item(i).startId, results.rows.item(i).start,  
+                    results.rows.item(i).end);
+            }
+            $("#scheduleList").listview("refresh");          
+        }
+        
+        function ui_addSchedule(id, start, end) {
+            $('#scheduleList').append($('<li/>', {    
+                    'data-icon': "delete",
+                    'id': id
+                }).append($('<a/>', {
+                    'href': 'javascript:delSchedule("'+id+'")',
+                    'text': 'Start at ' + start + ' end at ' + end
+                })));
         }
         
         $(document).ready(function() {
@@ -49,25 +83,57 @@
         function unpluggFor(interval) {
             console.log("Setting Timer");
 
-            $('#unpluggBtn').hide();
-            $('#unpluggBtn2').show();
             window.plugins.unplugg.toggleAirplaneMode(true);
 
             var newDateObj = new Date();
             newDateObj.setTime(newDateObj.getTime() + (interval * 60 * 1000));
             window.plugins.localNotification.add(
-                { date: newDateObj, message: 'Waking Up!', id: 123, airplane: false });
+                { date: newDateObj, message: 'Waking Up!', id: guidGenerator(), airplane: false });
         }
         
         function saveSchedule() {
-            var startDate = parseDate($('#date1').val());
-            var endDate = parseDate($('#date2').val());
+            var start = $('#date1').val();
+            var end = $('#date2').val();
+            var startDate = parseDate(start);
+            var endDate = parseDate(end);
             var reoccur = $('checkbox-0').is(':checked');
-            //window.plugins.unplugg.addSchedule({"start": start, "end": end, "reoccur": false});
+            var startID = guidGenerator();
+            var endID = guidGenerator();
+            
             window.plugins.localNotification.add(
-                { date: startDate, message: 'Go to sleep!', id: 111, airplane: true, repeatDaily: reoccur });
+                { date: startDate, message: 'Go to sleep!', id: startID, airplane: true, repeatDaily: reoccur });
             window.plugins.localNotification.add(
-                { date: endDate, message: 'Waking up now!', id: 222, airplane: false, repeateDaily: reoccur });
+                { date: endDate, message: 'Waking up now!', id: endID, airplane: false, repeateDaily: reoccur });
+            
+            db.transaction(function(tx) {
+                tx.executeSql('INSERT INTO UNPLUGG (startId, start, endId, end, reoccur) VALUES (?, ?, ?, ?, ?)', 
+                    [startID, start, endID, end, reoccur]);
+                }, function() { 
+                    console.log("Unable to add schedule"); 
+                }, function(){
+                    console.log("schedule added");
+            });       
+            
+            ui_addSchedule(startID, start, end);
+            $("#scheduleList").listview("refresh");          
+
+            // clean text boxes
+            $('#date1').val("");
+            $('#date2').val("");
+        }
+        
+        function delSchedule(startId) {
+            console.log("delSchedule called");
+            console.log("id = " + startId);
+            db.transaction(function(tx) {
+                tx.executeSql('DELETE FROM UNPLUGG WHERE startId=?', [startId]);
+                }, function() { 
+                    console.log("Unable to remove schedule"); 
+                }, function(){
+                    console.log("schedule removed");
+                    // TODO remove ui element
+                    $("#scheduleList").listview("refresh");          
+            });       
         }
         
         function parseDate(datestring) {
@@ -93,6 +159,23 @@
             
             return startDate;
         }
+
+        function guidGenerator() {
+            var S4 = function() {
+               return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+            };
+            return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+        }
+    </script>
+    <script id="newsItem" type="text/x-jquery-tmpl">
+      <li data-messageId="${id}" class="newsItem">
+        <h3><a href="${url}">${title}</a></h3>
+        <p class="subItem"><strong>${postedAgo} by ${postedBy} </strong></p>
+        <div class="ui-li-aside">
+          <p><strong>${points} points</strong></p>
+          <p>${commentCount} comments</p>
+        </div>
+      </li>
     </script>
 </head> 
 <body onload="init()"> 
@@ -127,6 +210,9 @@
     
         <div data-role="content" id="schedule" style="display:none">   
             <a href="#add" data-role="button" data-icon="add">Add a new schedule</a>
+            <ul data-role="listview" data-inset="true" id="scheduleList">
+                <li data-role="list-divider" id="schedule-divider">Schedules</li>
+            </ul>
         </div><!-- /content -->
     
     </div>
@@ -147,7 +233,7 @@
             <input type="text" name="date2" id="date2" class="mobiscroll" readonly="readonly" value="" />
             <input type="checkbox" name="checkbox-0" id="checkbox-0" class="custom" />
             <label for="checkbox-0">Repeat daily</label>
-            <button data-role="button" onclick="saveSchedule()">Save</button>
+            <a href="#main" data-direction="reverse" data-role="button" onclick="saveSchedule()">Save</a>
         </div><!-- /content -->
     </div>
 
