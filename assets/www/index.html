@@ -39,9 +39,23 @@
         function populateSchedule(tx, results) {
             var len = results.rows.length;
             console.log("UNPLUGG table: " + len + " rows found.");
-            for (var i=0; i<len; i++){
-                ui_addSchedule(results.rows.item(i).startId, results.rows.item(i).start,  
-                    results.rows.item(i).end);
+            for (var i=0; i<len; i++) {
+                var now = new Date().getTime();
+                var then = parseDate(results.rows.item(i).end).getTime();
+                console.log("Now:  " + now);
+                console.log("Then: " + then);
+                console.log("repeat: " + results.rows.item(i).reoccur);
+                console.log("comp: " + (results.rows.item(i).reoccur || (now < then)));
+                if (results.rows.item(i).reoccur === "true") {
+                    console.log("it reoccurs, add it");
+                    ui_addSchedule(results.rows.item(i).startId, results.rows.item(i).start, results.rows.item(i).end);
+                } else if (now < then) {
+                    console.log("hasn't happend yet");
+                    ui_addSchedule(results.rows.item(i).startId, results.rows.item(i).start, results.rows.item(i).end);
+                } else {
+                    console.log("should delete old schedule");
+                    delSchedule(results.rows.item(i).startId);
+                } 
             }
             $("#scheduleList").listview("refresh");          
         }
@@ -96,7 +110,8 @@
             var end = $('#date2').val();
             var startDate = parseDate(start);
             var endDate = parseDate(end);
-            var reoccur = $('checkbox-0').is(':checked');
+            var reoccur = $('#checkbox-0').is(':checked');
+            console.log("reoccur = " + reoccur);
             var startID = guidGenerator();
             var endID = guidGenerator();
             
@@ -120,6 +135,8 @@
             // clean text boxes
             $('#date1').val("");
             $('#date2').val("");
+            $('#checkbox-0').attr('checked', false);
+
         }
         
         function delSchedule(startId) {
@@ -132,15 +149,23 @@
                 }, function(){
                     console.log("schedule removed");
                     // TODO remove ui element
+                    $("#"+startId).remove();
                     $("#scheduleList").listview("refresh");          
             });       
         }
         
         function parseDate(datestring) {
             var startDate = new Date();
-            
-            hour = parseInt(datestring.substring(0, 2));
-            min = parseInt(datestring.substring(3,5));
+            if (datestring[0]==="0") {
+                hour = parseInt(datestring.substring(1,2));
+            } else {
+                hour = parseInt(datestring.substring(0,2));
+            }
+            if (datestring[3]==="0") {
+                min = parseInt(datestring.substring(4,5));
+            } else {
+                min = parseInt(datestring.substring(3,5));
+            }
             pm = false;
             if (datestring.substring(6,8) == "PM") {
                 pm = true;
