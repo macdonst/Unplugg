@@ -15,6 +15,8 @@
     <script type="text/javascript" src="LocalNotification.js"></script>
     <script type="text/javascript">
         var db = null;
+        var watchId = null;
+        var upsidedown = false;
         
         function init() {
             document.addEventListener("deviceready", onDevReady, false);
@@ -42,10 +44,6 @@
             for (var i=0; i<len; i++) {
                 var now = new Date().getTime();
                 var then = parseDate(results.rows.item(i).end).getTime();
-                console.log("Now:  " + now);
-                console.log("Then: " + then);
-                console.log("repeat: " + results.rows.item(i).reoccur);
-                console.log("comp: " + (results.rows.item(i).reoccur || (now < then)));
                 if (results.rows.item(i).reoccur === "true") {
                     console.log("it reoccurs, add it");
                     ui_addSchedule(results.rows.item(i).startId, results.rows.item(i).start, results.rows.item(i).end);
@@ -93,6 +91,41 @@
             }
         }
         
+        function accelOn(enable) {
+            console.log("Toggle Accelerometer");
+            if (enable) {
+                $('#accBtn').hide();
+                $('#accBtn2').show();
+                var options = { frequency: 3000 };
+                watchID = navigator.accelerometer.watchAcceleration(function(acceleration) {
+                    console.log("x: " + Math.floor(acceleration.x) + " y: " + Math.floor(acceleration.y) + " z: " + Math.floor(acceleration.z));
+                    var x = Math.floor(acceleration.x);
+                    var y = Math.floor(acceleration.y);
+                    var z = Math.floor(acceleration.z);
+                    if (z === -10 && (x >= -1 && x <= 1) && (y >= -1 && y <= 1)) {
+                        if (!upsidedown) {
+                            upsidedown = true;
+                            console.log("turning on airplane mode");
+                            window.plugins.unplugg.toggleAirplaneMode(true);
+                        }
+                    } else if (z != -10 && upsidedown) {
+                        upsidedown = false;
+                        console.log("turning off airplane mode");
+                        window.plugins.unplugg.toggleAirplaneMode(false);
+                    }
+                }, function(){
+                    console.log("couldn't turn on accelerometer");
+                }, options);
+            } else {
+                $('#accBtn').show();
+                $('#accBtn2').hide();
+                if (watchID) {
+                    navigator.accelerometer.clearWatch(watchID);
+                    watchID = null;
+                }
+            }
+        }
+        
         function unpluggFor(interval) {
             console.log("Setting Timer");
 
@@ -110,7 +143,6 @@
             var startDate = parseDate(start);
             var endDate = parseDate(end);
             var reoccur = $('#checkbox-0').is(':checked');
-            console.log("reoccur = " + reoccur);
             var startID = guidGenerator();
             var endID = guidGenerator();
             
@@ -145,10 +177,6 @@
             db.transaction(function(tx) {
                     tx.executeSql('SELECT * FROM UNPLUGG', [], function(tx, results) {
                         db.transaction(function(delTx) {
-                            console.log("arg!");
-                            console.log("len = " + results.rows.length);
-                            console.log("Remove notfication = " + results.rows.item(0).startId);
-                            console.log("Remove notfication = " + results.rows.item(0).endId);
                             window.plugins.localNotification.cancel(results.rows.item(0).startId);
                             window.plugins.localNotification.cancel(results.rows.item(0).endId);
                             console.log("about to run sql del command with id = " + startId);
@@ -192,7 +220,6 @@
             if (!pm && hour === 12) {
                 hour = 0;
             }
-            console.log("hour = " + hour + " min = " + min + " pm " + pm);
             
             startDate.setHours(hour);
             startDate.setMinutes(min);
@@ -237,6 +264,8 @@
         <div data-role="content" id="status">
             <a href="#" id="unpluggBtn" onclick="unpluggNow(true)" data-role="button">Unplugg Now!</a>
             <a href="#" id="unpluggBtn2" style="display: none"  data-theme="b" onclick="unpluggNow(false)" data-role="button">Plugg In!</a>            
+            <a href="#" id="accBtn" onclick="accelOn(true)" data-role="button">Turn Accelerometer On!</a>
+            <a href="#" id="accBtn2" style="display: none"  data-theme="b" onclick="accelOn(false)" data-role="button">Turn Accelerometer Off!</a>            
             <!-- label for="currentStatus">Current Status:</label>
             <div id="currentStatus"></div -->
             
