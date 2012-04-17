@@ -25,7 +25,7 @@
             db = window.openDatabase("Unplugg", "1.0", "Unplugg schedule DB", 200000);
             db.transaction(function(tx) {
                 //tx.executeSql('Drop table if exists UNPLUGG')
-                tx.executeSql('CREATE TABLE IF NOT EXISTS UNPLUGG (startId, start, endId, end, reoccur)');
+                tx.executeSql('CREATE TABLE IF NOT EXISTS UNPLUGG (startId unique, start, endId, end, reoccur)');
                 tx.executeSql('SELECT * FROM UNPLUGG', [], populateSchedule, function(){
                     console.log("query failed")
                 });
@@ -65,9 +65,8 @@
                     'data-icon': "delete",
                     'id': id
                 }).append($('<a/>', {
-                    'href': 'javascript:delSchedule("'+id+'")',
-                    'text': 'Start at ' + start + ' end at ' + end
-                })));
+                    'href': 'javascript:delSchedule("'+id+'")'
+                }).append($('<b>Sleep at ' + start + '<br/>Wake at ' + end + '<b>'))));
         }
         
         $(document).ready(function() {
@@ -142,16 +141,33 @@
         function delSchedule(startId) {
             console.log("delSchedule called");
             console.log("id = " + startId);
+            
             db.transaction(function(tx) {
-                tx.executeSql('DELETE FROM UNPLUGG WHERE startId=?', [startId]);
+                    tx.executeSql('SELECT * FROM UNPLUGG', [], function(tx, results) {
+                        db.transaction(function(delTx) {
+                            console.log("arg!");
+                            console.log("len = " + results.rows.length);
+                            console.log("Remove notfication = " + results.rows.item(0).startId);
+                            console.log("Remove notfication = " + results.rows.item(0).endId);
+                            window.plugins.localNotification.cancel(results.rows.item(0).startId);
+                            window.plugins.localNotification.cancel(results.rows.item(0).endId);
+                            console.log("about to run sql del command with id = " + startId);
+                            delTx.executeSql('DELETE FROM UNPLUGG WHERE startId=?', [startId], function() {
+                                console.log("delete win");
+                            }, function() {
+                                console.log("delete failed");
+                            });
+                        });
+                    }, function(){
+                        console.log("query failed")
+                    });
                 }, function() { 
-                    console.log("Unable to remove schedule"); 
+                    console.log("Unable to delete schedule"); 
                 }, function(){
-                    console.log("schedule removed");
-                    // TODO remove ui element
+                    console.log("schedule deleted");
                     $("#"+startId).remove();
                     $("#scheduleList").listview("refresh");          
-            });       
+            });
         }
         
         function parseDate(datestring) {
