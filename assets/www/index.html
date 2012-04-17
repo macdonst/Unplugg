@@ -86,7 +86,7 @@
             } else {
                 $('#unpluggBtn').show();
                 $('#unpluggBtn2').hide();
-                clearTimeout(timeoutId);
+                //clearTimeout(timeoutId);
                 window.plugins.unplugg.toggleAirplaneMode(false);
             }
         }
@@ -138,36 +138,56 @@
         }
         
         function saveSchedule() {
+            var now = new Date().getTime();
             var start = $('#date1').val();
             var end = $('#date2').val();
             var startDate = parseDate(start);
             var endDate = parseDate(end);
             var reoccur = $('#checkbox-0').is(':checked');
-            var startID = guidGenerator();
-            var endID = guidGenerator();
             
-            window.plugins.localNotification.add(
-                { date: startDate, message: 'Go to sleep!', id: startID, airplane: true, repeatDaily: reoccur });
-            window.plugins.localNotification.add(
-                { date: endDate, message: 'Waking up now!', id: endID, airplane: false, repeateDaily: reoccur });
-            
-            db.transaction(function(tx) {
-                tx.executeSql('INSERT INTO UNPLUGG (startId, start, endId, end, reoccur) VALUES (?, ?, ?, ?, ?)', 
-                    [startID, start, endID, end, reoccur]);
-                }, function() { 
-                    console.log("Unable to add schedule"); 
+            // Only add in a new schedule if the end time hasn't already happened or it reoccurs
+            if (reoccur || (now < endDate.getTime())) {
+                var startID = guidGenerator();
+                var endID = guidGenerator();
+                
+                window.plugins.localNotification.add({
+                    date: startDate,
+                    message: 'Go to sleep!',
+                    id: startID,
+                    airplane: true,
+                    repeatDaily: reoccur
+                });
+                window.plugins.localNotification.add({
+                    date: endDate,
+                    message: 'Waking up now!',
+                    id: endID,
+                    airplane: false,
+                    repeateDaily: reoccur
+                });
+                
+                db.transaction(function(tx){
+                    tx.executeSql('INSERT INTO UNPLUGG (startId, start, endId, end, reoccur) VALUES (?, ?, ?, ?, ?)', [startID, start, endID, end, reoccur]);
+                }, function(){
+                    console.log("Unable to add schedule");
                 }, function(){
                     console.log("schedule added");
-            });       
-            
-            ui_addSchedule(startID, start, end);
-            $("#scheduleList").listview("refresh");          
+                });
+                
+                ui_addSchedule(startID, start, end);
+                $("#scheduleList").listview("refresh");
+            } else {
+                navigator.notification.alert(
+                    'Your end date is in the past.',  // message
+                    null,         // callback
+                    'Save Failed',            // title
+                    'Done'                  // buttonName
+                );
+            }
 
             // clean text boxes
             $('#date1').val("");
             $('#date2').val("");
             $('#checkbox-0').attr('checked', false);
-
         }
         
         function delSchedule(startId) {
@@ -266,8 +286,6 @@
             <a href="#" id="unpluggBtn2" style="display: none"  data-theme="b" onclick="unpluggNow(false)" data-role="button">Plugg In!</a>            
             <a href="#" id="accBtn" onclick="accelOn(true)" data-role="button">Turn Accelerometer On!</a>
             <a href="#" id="accBtn2" style="display: none"  data-theme="b" onclick="accelOn(false)" data-role="button">Turn Accelerometer Off!</a>            
-            <!-- label for="currentStatus">Current Status:</label>
-            <div id="currentStatus"></div -->
             
             <label for="unplugs">Unplugg for:</label>
             <div data-role="controlgroup" id="unplugs">                

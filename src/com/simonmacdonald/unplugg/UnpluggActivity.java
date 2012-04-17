@@ -9,8 +9,8 @@ public class UnpluggActivity extends DroidGap {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // super.setIntegerProperty("splashscreen", R.drawable.splash);
+        super.setIntegerProperty("splashscreen", R.drawable.splash);
         this.setStringProperty("errorUrl", "file:///android_asset/www/error.html");
-        super.loadUrl("file:///android_asset/www/index.html");
+        super.loadUrl("file:///android_asset/www/index.html", 3000);
     }
 }
